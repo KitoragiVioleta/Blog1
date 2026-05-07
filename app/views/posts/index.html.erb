@@ -1,0 +1,61 @@
+<header class="header">
+  <div class="header-content">
+    <div class="logo">✍️ Мій блог</div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-content">
+    <button class="filter-btn active" data-category="all">Всі</button>
+    <button class="filter-btn" data-category="tech">💻 Технології</button>
+    <button class="filter-btn" data-category="life">🌿 Життя</button>
+    <button class="filter-btn" data-category="travel">✈️ Подорожі</button>
+    <button class="filter-btn" data-category="other">📌 Інше</button>
+    <input type="text" class="search-input" id="searchInput" placeholder="🔍 Пошук...">
+  </div>
+</div>
+
+<main class="main-container">
+  <section class="posts-section">
+    <div class="posts-grid" id="postsGrid"></div>
+  </section>
+
+  <aside class="editor-section">
+    <div class="editor-panel">
+      <h2 class="editor-title" id="editorTitle">Новий пост</h2>
+      <form id="postForm">
+        <input type="hidden" id="editingId">
+
+        <div class="form-group">
+          <label class="form-label" for="postTitle">Заголовок</label>
+          <input type="text" class="form-input" id="postTitle" placeholder="Введіть заголовок..." required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="postCategory">Категорія</label>
+          <select class="form-select" id="postCategory" required>
+            <option value="tech">💻 Технології</option>
+            <option value="life">🌿 Життя</option>
+            <option value="travel">✈️ Подорожі</option>
+            <option value="other">📌 Інше</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="postBody">Текст посту</label>
+          <textarea class="form-textarea" id="postBody" placeholder="Напишіть щось цікаве..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Теги <span class="tags-hint">(натисніть Enter щоб додати)</span></label>
+          <div class="tags-input-container" id="tagsContainer">
+            <input type="text" class="tags-input" id="tagsInput" placeholder="Додати тег...">
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Опублікувати</button>
+        <button type="button" class="cancel-btn hidden" id="cancelBtn">Скасувати</button>
+      </form>
+    </div>
+  </aside>
+</main>

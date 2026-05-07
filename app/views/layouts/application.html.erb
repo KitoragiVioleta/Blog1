@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мій блог</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #f5f4f0; color: #1a1a18; line-height: 1.5; min-height: 100vh; }
+    .header { position: sticky; top: 0; z-index: 100; background: #ffffff; border-bottom: 1px solid #e2e0d8; padding: 16px 24px; }
+    .header-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 24px; font-weight: 700; color: #1a1a18; }
+    .toolbar { background: #ffffff; border-bottom: 1px solid #e2e0d8; padding: 12px 24px; }
+    .toolbar-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e0d8; background: #ffffff; color: #6b6a65; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .filter-btn:hover { background: #f5f4f0; border-color: #ccc9be; }
+    .filter-btn.active { background: #1a1a18; color: #ffffff; border-color: #1a1a18; }
+    .search-input { flex: 1; min-width: 200px; padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e0d8; background: #ffffff; font-size: 14px; outline: none; font-family: inherit; }
+    .search-input:focus { border-color: #1a1a18; }
+    .search-input::placeholder { color: #a09e98; }
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 24px; display: flex; gap: 24px; }
+    .posts-section { flex: 7; min-width: 0; }
+    .editor-section { flex: 3; min-width: 300px; }
+    .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 1200px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px) { .main-container { flex-direction: column; } .posts-grid { grid-template-columns: 1fr; } .editor-section { order: -1; position: static; } }
+    .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #6b6a65; font-size: 16px; }
+    .post-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e0d8; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.2s, border-color 0.2s; }
+    .post-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); border-color: #ccc9be; }
+    .post-card-header { padding: 16px 16px 12px; }
+    .post-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .category-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .category-badge.tech { background: #e8f0fe; color: #1a4a8a; }
+    .category-badge.life { background: #e6f4ea; color: #1e5c30; }
+    .category-badge.travel { background: #fff3e0; color: #7a4800; }
+    .category-badge.other { background: #f1efea; color: #4a4840; }
+    .post-date { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #a09e98; }
+    .clock-icon { width: 12px; height: 12px; }
+    .post-title { font-size: 16px; font-weight: 600; color: #1a1a18; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+    .post-excerpt { font-size: 14px; color: #6b6a65; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }
+    .post-excerpt.expanded { display: block; -webkit-line-clamp: unset; }
+    .post-tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px; border-top: 1px solid #f5f4f0; }
+    .tag { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+    .tag-0 { background: #fce7f3; color: #9d174d; } .tag-1 { background: #dbeafe; color: #1e40af; }
+    .tag-2 { background: #d1fae5; color: #065f46; } .tag-3 { background: #fef3c7; color: #92400e; }
+    .tag-4 { background: #ede9fe; color: #5b21b6; } .tag-5 { background: #ffedd5; color: #9a3412; }
+    .post-actions { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid #f5f4f0; margin-top: auto; }
+    .read-more-btn { background: none; border: none; color: #1a1a18; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; }
+    .read-more-btn:hover { text-decoration: underline; }
+    .action-buttons { display: flex; gap: 8px; }
+    .edit-btn, .delete-btn { padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; border: 1px solid; transition: all 0.2s; font-family: inherit; }
+    .edit-btn { background: #ffffff; color: #1a1a18; border-color: #e2e0d8; }
+    .edit-btn:hover { background: #f5f4f0; border-color: #ccc9be; }
+    .delete-btn { background: #ffffff; color: #b91c1c; border-color: #fecaca; }
+    .delete-btn:hover { background: #fef2f2; border-color: #f87171; }
+    .editor-panel { position: sticky; top: 140px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e0d8; padding: 20px; }
+    .editor-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #1a1a18; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 6px; }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e0d8; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #1a1a18; }
+    .form-input::placeholder, .form-textarea::placeholder { color: #a09e98; }
+    .form-textarea { min-height: 150px; resize: vertical; }
+    .tags-input-container { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; border: 1px solid #e2e0d8; border-radius: 8px; min-height: 44px; cursor: text; }
+    .tags-input-container:focus-within { border-color: #1a1a18; }
+    .tags-input-container .tag { display: flex; align-items: center; gap: 4px; }
+    .tag-remove { background: none; border: none; cursor: pointer; font-size: 14px; line-height: 1; opacity: 0.6; }
+    .tag-remove:hover { opacity: 1; }
+    .tags-input { flex: 1; min-width: 80px; border: none; outline: none; font-size: 14px; padding: 4px; font-family: inherit; }
+    .tags-hint { font-size: 12px; color: #a09e98; font-weight: 400; }
+    .submit-btn { width: 100%; padding: 12px; background: #1a1a18; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; font-family: inherit; }
+    .submit-btn:hover { background: #2d2d2a; }
+    .cancel-btn { width: 100%; padding: 12px; background: #ffffff; color: #1a1a18; border: 1px solid #e2e0d8; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; transition: all 0.2s; font-family: inherit; }
+    .cancel-btn:hover { background: #f5f4f0; border-color: #ccc9be; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <%= yield %>
+  <script>
+    let posts=[],currentFilter='all',searchQuery='',editingId=null,currentTags=[];
+    const categoryLabels={tech:'💻 Технології',life:'🌿 Життя',travel:'✈️ Подорожі',other:'📌 Інше'};
+    const samplePosts=[
+      {id:'1',title:'Як я навчився програмувати за 6 місяців',body:'Це була неймовірна подорож від повного нуля до створення власних проектів. Все почалося з простого курсу на YouTube, а закінчилося роботою в IT-компанії. Головне - не здаватися і практикуватися кожного дня.',category:'tech',tags:['програмування','JavaScript','навчання'],createdAt:new Date(Date.now()-86400000*2).toISOString(),readTime:5},
+      {id:'2',title:'Мої улюблені рецепти української кухні',body:'Борщ, вареники, голубці - ці страви завжди нагадують мені про дитинство та бабусину кухню. Сьогодні хочу поділитися секретами приготування справжнього українського борщу.',category:'life',tags:['рецепти','кухня','традиції'],createdAt:new Date(Date.now()-86400000*5).toISOString(),readTime:8},
+      {id:'3',title:'Подорож до Карпат: що варто знати',body:'Карпати - це магічне місце, яке варто відвідати кожному. Свіже повітря, неймовірні краєвиди та гостинність місцевих жителів роблять цю подорож незабутньою.',category:'travel',tags:['Карпати','подорож','гори'],createdAt:new Date(Date.now()-86400000*10).toISOString(),readTime:6},
+      {id:'4',title:'Огляд нового MacBook Pro M3',body:'Apple знову здивувала світ своїм новим чіпом M3. Продуктивність вражає, а час роботи від батареї перевершує всі очікування.',category:'tech',tags:['Apple','MacBook','огляд'],createdAt:new Date(Date.now()-86400000*15).toISOString(),readTime:7},
+      {id:'5',title:'Чому важливо читати книги щодня',body:'Читання - це не просто хобі, це інвестиція в себе. Кожна книга відкриває нові горизонти та покращує критичне мислення.',category:'life',tags:['книги','саморозвиток','звички'],createdAt:new Date(Date.now()-86400000*20).toISOString(),readTime:4}
+    ];
+    function savePosts(){localStorage.setItem('blog_posts',JSON.stringify(posts));}
+    function loadPosts(){const s=localStorage.getItem('blog_posts');posts=s?JSON.parse(s):samplePosts;if(!s)savePosts();}
+    function formatDate(d){const x=new Date(d);return[x.getDate(),x.getMonth()+1,x.getFullYear()].map(n=>String(n).padStart(2,'0')).join('.');}
+    function generateId(){return Date.now().toString(36)+Math.random().toString(36).substr(2);}
+    function calcReadTime(t){return Math.max(1,Math.ceil(t.trim().split(/\s+/).length/200));}
+    function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+    function getFiltered(){return posts.filter(p=>{const okC=currentFilter==='all'||p.category===currentFilter;const okQ=!searchQuery||p.title.toLowerCase().includes(searchQuery)||p.body.toLowerCase().includes(searchQuery)||p.tags.some(t=>t.toLowerCase().includes(searchQuery));return okC&&okQ;});}
+    function renderPosts(){
+      const grid=document.getElementById('postsGrid');
+      const list=getFiltered();
+      if(!list.length){grid.innerHTML='<div class="empty-state"><div style="font-size:2rem;margin-bottom:12px">📭</div><strong>Постів не знайдено</strong></div>';return;}
+      grid.innerHTML=list.map(p=>`<article class="post-card"><div class="post-card-header"><div class="post-meta"><span class="category-badge ${p.category}">${categoryLabels[p.category]}</span><span class="post-date"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${p.readTime} хв · ${formatDate(p.createdAt)}</span></div><h3 class="post-title">${esc(p.title)}</h3><p class="post-excerpt" id="excerpt-${p.id}">${esc(p.body)}</p></div>${p.tags.length?`<div class="post-tags">${p.tags.map((t,i)=>`<span class="tag tag-${i%6}">${esc(t)}</span>`).join('')}</div>`:''}<div class="post-actions"><button class="read-more-btn" onclick="toggleExpand('${p.id}')"><span id="tt-${p.id}">Читати далі</span> <span id="ta-${p.id}">↓</span></button><div class="action-buttons"><button class="edit-btn" onclick="editPost('${p.id}')">✏️ Редагувати</button><button class="delete-btn" onclick="deletePost('${p.id}')">🗑 Видалити</button></div></div></article>`).join('');
+    }
+    function toggleExpand(id){const el=document.getElementById(`excerpt-${id}`);const exp=el.classList.toggle('expanded');document.getElementById(`tt-${id}`).textContent=exp?'Згорнути':'Читати далі';document.getElementById(`ta-${id}`).textContent=exp?'↑':'↓';}
+    function editPost(id){const p=posts.find(x=>x.id===id);if(!p)return;editingId=id;document.getElementById('postTitle').value=p.title;document.getElementById('postCategory').value=p.category;document.getElementById('postBody').value=p.body;currentTags=[...p.tags];document.getElementById('editorTitle').textContent='Редагувати пост';document.getElementById('submitBtn').textContent='Зберегти зміни';document.getElementById('cancelBtn').classList.remove('hidden');renderTags();document.getElementById('postTitle').focus();}
+    function deletePost(id){if(!confirm('Видалити цей пост?'))return;posts=posts.filter(p=>p.id!==id);savePosts();renderPosts();if(editingId===id)resetForm();}
+    function resetForm(){editingId=null;currentTags=[];document.getElementById('postForm').reset();document.getElementById('editorTitle').textContent='Новий пост';document.getElementById('submitBtn').textContent='Опублікувати';document.getElementById('cancelBtn').classList.add('hidden');renderTags();}
+    function renderTags(){const c=document.getElementById('tagsContainer');const inp=document.getElementById('tagsInput');c.querySelectorAll('.tag').forEach(t=>t.remove());currentTags.forEach((tag,i)=>{const el=document.createElement('span');el.className=`tag tag-${i%6}`;el.innerHTML=`${esc(tag)}<button type="button" class="tag-remove" onclick="removeTag(${i})">×</button>`;c.insertBefore(el,inp);});}
+    function removeTag(i){currentTags.splice(i,1);renderTags();}
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.querySelectorAll('.filter-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentFilter=btn.dataset.category;renderPosts();});});
+      document.getElementById('searchInput').addEventListener('input',e=>{searchQuery=e.target.value.toLowerCase();renderPosts();});
+      document.getElementById('tagsInput').addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();const v=e.target.value.trim();if(v&&!currentTags.includes(v)){currentTags.push(v);e.target.value='';renderTags();}});
+      document.getElementById('tagsContainer').addEventListener('click',()=>{document.getElementById('tagsInput').focus();});
+      document.getElementById('postForm').addEventListener('submit',e=>{e.preventDefault();const title=document.getElementById('postTitle').value.trim();const category=document.getElementById('postCategory').value;const body=document.getElementById('postBody').value.trim();if(!title||!body)return;if(editingId){const idx=posts.findIndex(p=>p.id===editingId);if(idx!==-1)posts[idx]={...posts[idx],title,category,body,tags:[...currentTags],readTime:calcReadTime(body)};}else{posts.unshift({id:generateId(),title,category,body,tags:[...currentTags],createdAt:new Date().toISOString(),readTime:calcReadTime(body)});}savePosts();renderPosts();resetForm();});
+      document.getElementById('cancelBtn').addEventListener('click',resetForm);
+      loadPosts();renderPosts();
+    });
+  </script>
+</body>
+</html>
